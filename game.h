@@ -10,7 +10,7 @@
 //Spellogik
 // Innehåller funktioner för att hantera spellogiken, inklusive att slumpa det hemliga ordet, hantera användarens gissningar 
 // och avgöra om spelet är vunnet eller förlorat.
-// Denna modul kan också innehålla datastrukturer för att hålla det hemliga ordet och användarens gissningar.
+
 
 
 class Game  {
@@ -18,10 +18,11 @@ class Game  {
 private:
 	std::string correct_word = "";
 	std::string user_input = "";
+	std::string save_guesses = "";
 	bool valid_input = false;
-	bool game_continue = true;
+	char word_guessed = 'X';
 	int correct_letters_in_word = 0;
-	int current_row = 0;
+	int guesses_made = 0;
 	char letter_response;
 	std::vector<char> letter_responses;
 
@@ -38,6 +39,7 @@ public:
 	Game();
 	const std::vector<char>& get_letter_responses();
 	void run();
+	
 
 };
 
