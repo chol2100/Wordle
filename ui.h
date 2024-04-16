@@ -58,25 +58,18 @@ public:
 	void draw_base(sf::RenderWindow& window, std::vector<char> letter_responses);
 	void reset_count_letters();
 	void update_row_colors(const std::vector<char>& letter_responses);
-
-
+	void game_over_screen(sf::RenderWindow& window, char result, std::string correct_word);
 };
 
 class Keyboard :public Grid {
 private:
-
+	
 public:
 	Keyboard();
-	void draw_keyboard(sf::RenderWindow& window);
+	void draw_keyboard(sf::RenderWindow& window, const std::string& currentGuess, const std::vector<char>& letter_responses);
 	char mouse_click(sf::Vector2i mouse_pos, sf::RenderWindow& window);
-
+	
 };
 
-class Game_over {
-private:
 
-
-public:
-
-};
 #endif
