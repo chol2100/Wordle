@@ -13,7 +13,7 @@
 
 
 
-class Game  {
+class Game {
 	friend class Grid;
 private:
 	std::string correct_word = "";
@@ -24,7 +24,7 @@ private:
 	int correct_letters_in_word = 0;
 	int guesses_made = 0;
 	char letter_response;
-	std::vector<char> letter_responses;
+	std::vector<std::string> letter_responses;
 
 	//Här kommer orden lagras
 	std::vector<std::string>guessable_words;
@@ -37,9 +37,9 @@ private:
 
 public:
 	Game();
-	const std::vector<char>& get_letter_responses();
+	const std::vector<std::string>& get_letter_responses();
 	void run();
-	
+
 
 };
 
