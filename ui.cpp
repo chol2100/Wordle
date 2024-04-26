@@ -18,7 +18,7 @@ Grid::Grid() {
 
 	letters.resize(rows, std::vector<char>(columns, ' '));
 	letter_colors.resize(rows, std::vector<sf::Color>(columns, bgcolor));
-	
+
 }
 
 void Grid::reset_count_letters() {
@@ -26,27 +26,29 @@ void Grid::reset_count_letters() {
 	//current_row++; // ökar varje gång användaren lägger gilltigt ord och trycker OK
 }
 
-void Grid::update_row_colors(const std::vector<char>& letter_responses) {
-	for (size_t j = 0; j < letter_responses.size(); j++) {
-		switch (letter_responses[j]) {
+void Grid::update_row_colors(const std::vector<std::string>& letter_responses) {
+	for (int i = 0; i < letter_responses.size(); i++) {
+		char status = letter_responses[i][0];
+		char symbol = letter_responses[i][1];
+		switch (status) {
 		case 'C':
-			letter_colors[current_row][j] = green_color;
+			letter_colors[current_row][i] = green_color;
 			break;
 		case 'M':
-			letter_colors[current_row][j] = yellow_color;
+			letter_colors[current_row][i] = yellow_color;
 			break;
 		case 'I':
-			letter_colors[current_row][j] = sf::Color::Red;
+			letter_colors[current_row][i] = sf::Color::Red;
 			break;
 		default:
-			letter_colors[current_row][j] = bgcolor;
+			letter_colors[current_row][i] = bgcolor;
 			break;
 		}
 	}
 	current_row++; // Förbered för nästa rad
 }
 
-void Grid::game_over_screen(sf::RenderWindow& window, char result, std::string correct_word){
+void Grid::game_over_screen(sf::RenderWindow& window, char result, std::string correct_word) {
 	sf::RectangleShape popup;
 	popup.setSize(sf::Vector2f(590, 300));
 	popup.setPosition(80, 300);
@@ -54,7 +56,7 @@ void Grid::game_over_screen(sf::RenderWindow& window, char result, std::string c
 
 	sf::Font font;
 	font.loadFromFile("Gemsbuck 02 Bold.ttf");
-	
+
 	sf::Text text;
 	text.setFont(font);
 	text.setCharacterSize(36);
@@ -66,13 +68,13 @@ void Grid::game_over_screen(sf::RenderWindow& window, char result, std::string c
 		popup.setOutlineColor(sf::Color::Yellow);
 		popup.setFillColor(sf::Color(70, 166, 89, 200));
 		text.setString("You won!\n Press esc to close ");
-		
+
 	}
-	else if(result == 'F') {
+	else if (result == 'F') {
 		popup.setOutlineColor(sf::Color::Yellow);
 		popup.setFillColor(sf::Color::Red);
 		text.setString("You Lost!\nThe correct word was " + correct_word + "\nPress esc to close");
-		
+
 	}
 	else if (result == 'X') {
 		popup.setOutlineColor(sf::Color::Transparent);
@@ -114,12 +116,10 @@ char Keyboard::mouse_click(sf::Vector2i mouse_pos, sf::RenderWindow& window) {
 
 	double backBtnPosX = extra_space_x + 9 * (box_size_x + padding); // För "Tillbaka"-knappens X-position.
 	double backBtnPosY = extra_space_y * 1.9 + 2 * (box_size_y + padding); // För "Tillbaka"-knappens Y-position, justera om nödvändigt.
-
 	sf::Rect<int> back_button_rect(backBtnPosX, backBtnPosY, box_size_x, box_size_y);
-	//sf::Rect<int>ok_button_rect()
+	
 	// Omvandla global musposition till lokal i förhållande till fönstret.
 	sf::Vector2i localMousePos = sf::Mouse::getPosition(window);
-
 	if (back_button_rect.contains(localMousePos)) {
 		return 'B'; // Musen klickade inom "Tillbaka"-knappens område.
 	}
@@ -128,6 +128,24 @@ char Keyboard::mouse_click(sf::Vector2i mouse_pos, sf::RenderWindow& window) {
 		return '\0'; // Ingen träff på "Tillbaka"-knappen.
 	}
 
+}
+
+void Keyboard::update_key_colors(const std::vector<std::string>& letter_responses){
+	for (auto& items : letter_responses) {
+		char status = items[0];
+		char symbol = items[1];
+		int index = symbol - 'A';
+
+		if (status == 'C') {
+			key_colors[index] = green_color;
+		}
+		else if (status == 'M' && key_colors[index] != green_color) {
+			key_colors[index] = yellow_color;
+		}
+		else if (status == 'I' && key_colors[index] != green_color && key_colors[index] != yellow_color) {
+			key_colors[index] = sf::Color::Red;
+		}
+	}
 }
 
 
@@ -143,7 +161,7 @@ void Grid::calc_grid_pos() {
 	extra_space_y = (window_height - grid_height) / 2;
 }
 
-void Grid::draw_base(sf::RenderWindow& window, std::vector<char> letter_responses) {
+void Grid::draw_base(sf::RenderWindow& window, std::vector<std::string> letter_responses) {
 	// Hämtar storleken på skärmen
 	window_size = window.getSize();
 	// Räkna ut positioneringen för rutnätet
@@ -162,8 +180,7 @@ void Grid::draw_base(sf::RenderWindow& window, std::vector<char> letter_response
 
 			sf::RectangleShape square(sf::Vector2f(box_size_x, box_size_y));
 			square.setPosition(posX, posY);
-			
-			square.setFillColor(letter_colors[i][j]);			
+			square.setFillColor(letter_colors[i][j]);
 			square.setOutlineColor(gridcolor);
 			square.setOutlineThickness(1);
 
@@ -197,11 +214,11 @@ Keyboard::Keyboard() {
 	this->gridcolor = sf::Color::White;
 	this->bgcolor = sf::Color::Black;
 	this->lettercolor = sf::Color::White;
-	
+	key_colors.resize(26, bgcolor);
 }
 
 
-void Keyboard::draw_keyboard(sf::RenderWindow& window, const std::string& currentGuess, const std::vector<char>& letter_responses) {
+void Keyboard::draw_keyboard(sf::RenderWindow& window){
 	// Hämtar storleken på skärmen
 	window_size = window.getSize();
 	calc_grid_pos();
@@ -209,10 +226,6 @@ void Keyboard::draw_keyboard(sf::RenderWindow& window, const std::string& curren
 	// används för bokstäverna på tangentbordet
 	sf::Font font;
 	font.loadFromFile("Gemsbuck 02 Bold.ttf");
-
-	/*	std::string top_keys = "QWERTYUIOP";
-	std::string middle_keys = "ASDFGHJKL ";
-	std::string bottom_keys = "  ZXCVBNM  ";*/
 	std::string keyRows[3] = { "QWERTYUIOP", "ASDFGHJKL ", " ZXCVBNM  " };
 
 
@@ -227,35 +240,26 @@ void Keyboard::draw_keyboard(sf::RenderWindow& window, const std::string& curren
 
 			sf::RectangleShape button(sf::Vector2f(box_size_x, box_size_y));
 			button.setPosition(posX, posY);
-			// Här vill jag ändra så att knappen ändrar sin färg beroende på användarens gissning
-			// Kolla om bokstav på tangentbord [i][j] finns i användarens gissning
 			
-			button.setFillColor(bgcolor);
+			//button.setFillColor(bgcolor);
 			button.setOutlineColor(gridcolor);
 			button.setOutlineThickness(1);
 
-			char currentKey = keyRows[i][j];
-			//if (currentKey == ' ') continue;
-
-			sf::Color fillColor = bgcolor;
-			size_t foundPos = currentGuess.find(toupper(currentKey));
-
-			if (foundPos != std::string::npos && foundPos < letter_responses.size()) {
-				// Check the response for the found position and set the color.
-				switch (letter_responses[foundPos]) {
-				case 'C': fillColor = sf::Color::Green; break;
-				case 'M': fillColor = sf::Color::Yellow; break;
-				case 'I': fillColor = sf::Color::Red; break;
-				}
+			char currentLetter = keyRows[i][j];
+			if (currentLetter >= 'A' && currentLetter <= 'Z') {
+				int index = currentLetter - 'A';
+				button.setFillColor(key_colors[index]);
 			}
-			button.setFillColor(fillColor);
+			else {
+				button.setFillColor(bgcolor);
+			}
 			// skriver ut knapparna
 			window.draw(button);
 
 			sf::Text text;
 			if (i == 2 && j == 0) text.setString("OK");
 			else if (i == 2 && j == 9) text.setString(">");
-			else text.setString(std::string(1, currentKey));
+			else text.setString(std::string(1, keyRows[i][j]));
 
 			text.setFont(font);
 			text.setCharacterSize(24);
@@ -264,7 +268,7 @@ void Keyboard::draw_keyboard(sf::RenderWindow& window, const std::string& curren
 			text.setOrigin(textRect.width / 2.0f, textRect.height / 2.0f);
 			text.setPosition(posX + box_size_x / 2.0f, posY + box_size_y / 2.0f);
 			window.draw(text);
-			
+
 
 		}
 	}
